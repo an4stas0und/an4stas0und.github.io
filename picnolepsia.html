@@ -13,7 +13,6 @@
       padding-bottom: 60px;
     }
  
-    /* canvas como fondo absoluto */
     #waveform {
       position: fixed;
       top: 0;
@@ -24,7 +23,6 @@
       z-index: 0;
     }
  
-    /* tracklist encima del canvas */
     #tracklist {
       position: relative;
       z-index: 1;
@@ -87,17 +85,15 @@
       50% { opacity: 0.2; }
     }
  
-    /* botón stop */
+    /* HUD inferior — botones */
+    #btn-picno,
     #btn-stop {
       position: fixed;
       bottom: 0;
-      right: 0;
       width: 60px;
       height: 60px;
       background: #000;
       border: none;
-      border-left: 1px solid #111;
-      border-top: 1px solid #111;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -105,10 +101,41 @@
       transition: background 0.08s;
       z-index: 2;
     }
+ 
+    #btn-picno {
+      left: 0;
+      border-right: 1px solid #111;
+      border-top: 1px solid #111;
+    }
+    #btn-stop {
+      right: 0;
+      border-left: 1px solid #111;
+      border-top: 1px solid #111;
+    }
+ 
+    #btn-picno:hover,
     #btn-stop:hover { background: #0d0d0d; }
+ 
+    #btn-picno:active,
     #btn-stop:active { background: #1a1a1a; }
+ 
     #btn-stop svg rect { fill: #444; transition: fill 0.08s; }
     #btn-stop:hover svg rect { fill: #e8e8e0; }
+ 
+    /* ícono del botón picnolepsia: tres líneas verticales irregulares */
+    #btn-picno svg line { stroke: #444; transition: stroke 0.08s; }
+    #btn-picno:hover svg line { stroke: #e8e8e0; }
+ 
+    /* parpadeo del body durante la ausencia */
+    body.absence {
+      animation: blackout 1s steps(1, end);
+    }
+    @keyframes blackout {
+      0%   { opacity: 1; }
+      10%  { opacity: 0; }
+      90%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -122,79 +149,66 @@
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/02.ogg" role="listitem" tabindex="0">
     <span class="track-title">RIFF$@__WAVEfmt _________î___¸_____data_@__Ü</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/03.ogg" role="listitem" tabindex="0">
     <span class="track-title">WAVEfmt _________î___¸_____data_@__Ü</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/04_sueno_paradojico.ogg" role="listitem" tabindex="0">
     <span class="track-title">Sueño paradójico</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/05.ogg" role="listitem" tabindex="0">
     <span class="track-title">_________î___¸_____data_@__Ü</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/06_sueno_profundo.ogg" role="listitem" tabindex="0">
     <span class="track-title">Sueño profundo</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/07.ogg" role="listitem" tabindex="0">
     <span class="track-title">___¸_____data_@__Ü</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/08_vigilia_paradojica.ogg" role="listitem" tabindex="0">
     <span class="track-title">Vigilia paradójica</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/09_ensueno.ogg" role="listitem" tabindex="0">
     <span class="track-title">Ensueño</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/10.ogg" role="listitem" tabindex="0">
     <span class="track-title">_@__Ü</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/11_0c.ogg" role="listitem" tabindex="0">
     <span class="track-title">0°C</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/12_000.ogg" role="listitem" tabindex="0">
     <span class="track-title">0'00''</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/13.ogg" role="listitem" tabindex="0">
     <span class="track-title">-'--''</span>
     <span class="indicator"></span>
     <div class="progress-bar"></div>
   </div>
- 
   <div class="track" data-src="audio/14_cultra.ogg" role="listitem" tabindex="0">
     <span class="track-title">Cült_ra.wav</span>
     <span class="indicator"></span>
@@ -203,6 +217,16 @@
  
 </div>
  
+<!-- botón picnolepsia: tres líneas verticales como corte -->
+<button id="btn-picno" aria-label="Picnolepsia">
+  <svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+    <line x1="2"  y1="1" x2="2"  y2="13" stroke-width="1.5"/>
+    <line x1="7"  y1="3" x2="7"  y2="11" stroke-width="1.5"/>
+    <line x1="12" y1="0" x2="12" y2="14" stroke-width="1.5"/>
+  </svg>
+</button>
+ 
+<!-- botón stop -->
 <button id="btn-stop" aria-label="Detener todo">
   <svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
     <rect x="0" y="0" width="14" height="14"/>
@@ -214,12 +238,16 @@
   const VOLUME = 0.708;
   const MAX_SIMULTANEOUS = 3;
   const queue = [];
+  const allTracks = Array.from(document.querySelectorAll('.track'));
  
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const analyser = audioCtx.createAnalyser();
   analyser.fftSize = 2048;
   analyser.smoothingTimeConstant = 0.85;
   analyser.connect(audioCtx.destination);
+ 
+  /* mapa track → audio (para poder acceder por índice en picnolepsia) */
+  const audioMap = new Map();
  
   function stopEntry(entry) {
     try { entry.audio.pause(); entry.audio.currentTime = 0; } catch(e) {}
@@ -232,9 +260,35 @@
     if (idx !== -1) queue.splice(idx, 1);
   }
  
-  document.querySelectorAll('.track').forEach(track => {
+  function playTrack(track, seekTo) {
+    /* seekTo: fracción 0–1 del punto de inicio (opcional) */
+    const entry = audioMap.get(track);
+    if (!entry) return;
+    const { audio } = entry;
+ 
+    if (queue.length >= MAX_SIMULTANEOUS) {
+      const oldest = queue.shift();
+      stopEntry(oldest);
+    }
+ 
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    entry.connectToGraph();
+ 
+    /* saltar al punto aleatorio si se especifica */
+    if (seekTo !== undefined && audio.duration) {
+      audio.currentTime = seekTo * audio.duration;
+    }
+ 
+    track.classList.add('playing');
+    audio.play().catch(() => {});
+    queue.push({ audio, track });
+  }
+ 
+  allTracks.forEach(track => {
     const audio = new Audio(track.getAttribute('data-src'));
     audio.volume = VOLUME;
+    /* precargar metadatos para conocer la duración */
+    audio.preload = 'metadata';
  
     let connected = false;
     function connectToGraph() {
@@ -256,6 +310,9 @@
       bar.style.width = '0%';
       removeFromQueue(audio);
     });
+ 
+    const entryObj = { audio, track, connectToGraph };
+    audioMap.set(track, entryObj);
  
     function activate() {
       if (track.classList.contains('playing')) {
@@ -283,15 +340,65 @@
     });
   });
  
+  /* ── Botón STOP ── */
   document.getElementById('btn-stop').addEventListener('click', () => {
     [...queue].forEach(entry => stopEntry(entry));
     queue.length = 0;
   });
  
+  /* ── Botón PICNOLEPSIA ── */
+  let picnoLocked = false;
+ 
+  document.getElementById('btn-picno').addEventListener('click', () => {
+    if (picnoLocked) return;
+    picnoLocked = true;
+ 
+    /* 1. Detener todo lo que suena */
+    [...queue].forEach(entry => stopEntry(entry));
+    queue.length = 0;
+ 
+    /* 2. Ausencia: pantalla en negro 1 segundo */
+    document.body.classList.add('absence');
+ 
+    /* 3. Al cabo de 1 segundo: elegir 3 pistas aleatorias y reproducirlas
+          desde un punto aleatorio dentro de su duración */
+    setTimeout(() => {
+      document.body.classList.remove('absence');
+ 
+      /* mezclar índices y tomar los primeros 3 */
+      const shuffled = [...allTracks]
+        .map(t => ({ t, r: Math.random() }))
+        .sort((a, b) => a.r - b.r)
+        .map(x => x.t)
+        .slice(0, 3);
+ 
+      shuffled.forEach(track => {
+        const { audio } = audioMap.get(track);
+        const seekFraction = Math.random(); // punto aleatorio 0–1
+ 
+        /* si la duración ya se conoce, saltamos directo;
+           si no, esperamos el evento loadedmetadata */
+        function doPlay() {
+          playTrack(track, seekFraction);
+        }
+ 
+        if (audio.duration) {
+          doPlay();
+        } else {
+          audio.addEventListener('loadedmetadata', doPlay, { once: true });
+          /* forzar carga si no había empezado */
+          if (audio.readyState === 0) audio.load();
+        }
+      });
+ 
+      picnoLocked = false;
+    }, 1000);
+  });
+ 
   /* ── Visualizador de onda real como fondo ── */
-  const canvas = document.getElementById('waveform');
-  const ctx    = canvas.getContext('2d');
-  const bufLen = analyser.frequencyBinCount;
+  const canvas  = document.getElementById('waveform');
+  const ctx     = canvas.getContext('2d');
+  const bufLen  = analyser.frequencyBinCount;
   const dataArr = new Uint8Array(bufLen);
  
   function resize() {
