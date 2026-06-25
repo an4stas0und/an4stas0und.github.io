@@ -13,6 +13,23 @@
       padding-bottom: 60px;
     }
  
+    /* canvas como fondo absoluto */
+    #waveform {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+ 
+    /* tracklist encima del canvas */
+    #tracklist {
+      position: relative;
+      z-index: 1;
+    }
+ 
     .track {
       width: 100%;
       display: flex;
@@ -26,10 +43,11 @@
       overflow: hidden;
       transition: background 0.08s;
       user-select: none;
+      background: transparent;
     }
     .track:first-child { border-top: 1px solid #111; }
-    .track:hover { background: #0d0d0d; }
-    .track.playing { background: #0a0a0a; }
+    .track:hover { background: rgba(255,255,255,0.02); }
+    .track.playing { background: rgba(255,255,255,0.03); }
  
     .track-title {
       font-size: 13px;
@@ -47,10 +65,10 @@
       bottom: 0;
       left: 0;
       height: 1px;
-      background: #333;
+      background: #222;
       width: 0%;
     }
-    .track.playing .progress-bar { background: #555; }
+    .track.playing .progress-bar { background: #444; }
  
     .indicator {
       position: absolute;
@@ -69,16 +87,6 @@
       50% { opacity: 0.2; }
     }
  
-    /* visualizador */
-    #waveform {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100px;
-      height: 100px;
-      pointer-events: none;
-    }
- 
     /* botón stop */
     #btn-stop {
       position: fixed;
@@ -95,6 +103,7 @@
       align-items: center;
       justify-content: center;
       transition: background 0.08s;
+      z-index: 2;
     }
     #btn-stop:hover { background: #0d0d0d; }
     #btn-stop:active { background: #1a1a1a; }
@@ -103,6 +112,8 @@
   </style>
 </head>
 <body>
+ 
+<canvas id="waveform" aria-hidden="true"></canvas>
  
 <div id="tracklist" role="list" aria-label="Picnolepsia">
  
@@ -192,8 +203,6 @@
  
 </div>
  
-<canvas id="waveform" width="100" height="100" aria-hidden="true"></canvas>
- 
 <button id="btn-stop" aria-label="Detener todo">
   <svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
     <rect x="0" y="0" width="14" height="14"/>
@@ -202,15 +211,14 @@
  
 <script>
 (function () {
-  const VOLUME = 0.708; // -3 dB
+  const VOLUME = 0.708;
   const MAX_SIMULTANEOUS = 3;
-  const queue = []; // { audio, track, source }
+  const queue = [];
  
-  /* ── AudioContext compartido ── */
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 512;
-  analyser.smoothingTimeConstant = 0.8;
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = 0.85;
   analyser.connect(audioCtx.destination);
  
   function stopEntry(entry) {
@@ -228,7 +236,6 @@
     const audio = new Audio(track.getAttribute('data-src'));
     audio.volume = VOLUME;
  
-    /* Cada audio se conecta al analyser una sola vez */
     let connected = false;
     function connectToGraph() {
       if (connected) return;
@@ -240,9 +247,8 @@
     const bar = track.querySelector('.progress-bar');
  
     audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
+      if (audio.duration)
         bar.style.width = ((audio.currentTime / audio.duration) * 100).toFixed(1) + '%';
-      }
     });
  
     audio.addEventListener('ended', () => {
@@ -260,15 +266,11 @@
         removeFromQueue(audio);
         return;
       }
- 
       if (queue.length >= MAX_SIMULTANEOUS) {
         const oldest = queue.shift();
         stopEntry(oldest);
       }
- 
-      /* Reanudar contexto si fue suspendido por política de autoplay */
       if (audioCtx.state === 'suspended') audioCtx.resume();
- 
       connectToGraph();
       track.classList.add('playing');
       audio.play().catch(() => {});
@@ -281,32 +283,41 @@
     });
   });
  
-  /* ── Botón STOP ── */
   document.getElementById('btn-stop').addEventListener('click', () => {
     [...queue].forEach(entry => stopEntry(entry));
     queue.length = 0;
   });
  
-  /* ── Visualizador de forma de onda real ── */
-  const canvas  = document.getElementById('waveform');
-  const ctx     = canvas.getContext('2d');
-  const bufLen  = analyser.frequencyBinCount;
+  /* ── Visualizador de onda real como fondo ── */
+  const canvas = document.getElementById('waveform');
+  const ctx    = canvas.getContext('2d');
+  const bufLen = analyser.frequencyBinCount;
   const dataArr = new Uint8Array(bufLen);
+ 
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
  
   function drawWave() {
     requestAnimationFrame(drawWave);
     analyser.getByteTimeDomainData(dataArr);
  
-    ctx.clearRect(0, 0, 100, 100);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#444';
+    const W = canvas.width;
+    const H = canvas.height;
+ 
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineWidth   = 1;
+    ctx.strokeStyle = 'rgba(80, 80, 74, 0.9)';
     ctx.beginPath();
  
-    const sliceW = 100 / bufLen;
+    const sliceW = W / bufLen;
     let x = 0;
     for (let i = 0; i < bufLen; i++) {
       const v = dataArr[i] / 128.0;
-      const y = (v * 100) / 2;
+      const y = (v * H) / 2;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       x += sliceW;
     }
