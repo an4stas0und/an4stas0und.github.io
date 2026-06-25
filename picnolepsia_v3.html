@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picnolepsia</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      font-family: 'Courier New', monospace;
+      padding-bottom: 60px;
+    }
+
+    .track {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #111;
+      padding: 0 20px;
+      height: 52px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.08s;
+      user-select: none;
+    }
+    .track:first-child { border-top: 1px solid #111; }
+    .track:hover { background: #0d0d0d; }
+    .track.playing { background: #0a0a0a; }
+
+    .track-title {
+      font-size: 13px;
+      color: #888;
+      letter-spacing: 0.06em;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track.playing .track-title { color: #e8e8e0; }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 1px;
+      background: #333;
+      width: 0%;
+    }
+    .track.playing .progress-bar { background: #555; }
+
+    .indicator {
+      position: absolute;
+      right: 20px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: transparent;
+    }
+    .track.playing .indicator {
+      background: #e8e8e0;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* visualizador */
+    #waveform {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 100px;
+      pointer-events: none;
+    }
+
+    /* botón stop */
+    #btn-stop {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 60px;
+      height: 60px;
+      background: #000;
+      border: none;
+      border-left: 1px solid #111;
+      border-top: 1px solid #111;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.08s;
+    }
+    #btn-stop:hover { background: #0d0d0d; }
+    #btn-stop:active { background: #1a1a1a; }
+    #btn-stop svg rect { fill: #444; transition: fill 0.08s; }
+    #btn-stop:hover svg rect { fill: #e8e8e0; }
+  </style>
+</head>
+<body>
+
+<div id="tracklist" role="list" aria-label="Picnolepsia">
+
+  <div class="track" data-src="audio/01_ausencia.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Ausencia</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/02.ogg" role="listitem" tabindex="0">
+    <span class="track-title">RIFF$@__WAVEfmt _________î___¸_____data_@__Ü</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/03.ogg" role="listitem" tabindex="0">
+    <span class="track-title">WAVEfmt _________î___¸_____data_@__Ü</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/04_sueno_paradojico.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Sueño paradójico</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/05.ogg" role="listitem" tabindex="0">
+    <span class="track-title">_________î___¸_____data_@__Ü</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/06_sueno_profundo.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Sueño profundo</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/07.ogg" role="listitem" tabindex="0">
+    <span class="track-title">___¸_____data_@__Ü</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/08_vigilia_paradojica.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Vigilia paradójica</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/09_ensueno.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Ensueño</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/10.ogg" role="listitem" tabindex="0">
+    <span class="track-title">_@__Ü</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/11_0c.ogg" role="listitem" tabindex="0">
+    <span class="track-title">0°C</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/12_000.ogg" role="listitem" tabindex="0">
+    <span class="track-title">0'00''</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/13.ogg" role="listitem" tabindex="0">
+    <span class="track-title">-'--''</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="track" data-src="audio/14_cultra.ogg" role="listitem" tabindex="0">
+    <span class="track-title">Cült_ra.wav</span>
+    <span class="indicator"></span>
+    <div class="progress-bar"></div>
+  </div>
+
+</div>
+
+<canvas id="waveform" width="100" height="100" aria-hidden="true"></canvas>
+
+<button id="btn-stop" aria-label="Detener todo">
+  <svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="14" height="14"/>
+  </svg>
+</button>
+
+<script>
+(function () {
+  const VOLUME = 0.708; // -3 dB
+  const MAX_SIMULTANEOUS = 3;
+  const queue = []; // { audio, track }
+
+  function stopEntry(entry) {
+    try { entry.audio.pause(); entry.audio.currentTime = 0; } catch(e) {}
+    entry.track.classList.remove('playing');
+    entry.track.querySelector('.progress-bar').style.width = '0%';
+  }
+
+  function removeFromQueue(audio) {
+    const idx = queue.findIndex(e => e.audio === audio);
+    if (idx !== -1) queue.splice(idx, 1);
+  }
+
+  document.querySelectorAll('.track').forEach(track => {
+    const audio = new Audio(track.getAttribute('data-src'));
+    audio.volume = VOLUME;
+
+    const bar = track.querySelector('.progress-bar');
+
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        bar.style.width = ((audio.currentTime / audio.duration) * 100).toFixed(1) + '%';
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      track.classList.remove('playing');
+      bar.style.width = '0%';
+      removeFromQueue(audio);
+    });
+
+    function activate() {
+      if (track.classList.contains('playing')) {
+        audio.pause();
+        audio.currentTime = 0;
+        track.classList.remove('playing');
+        bar.style.width = '0%';
+        removeFromQueue(audio);
+        return;
+      }
+
+      if (queue.length >= MAX_SIMULTANEOUS) {
+        const oldest = queue.shift();
+        stopEntry(oldest);
+      }
+
+      track.classList.add('playing');
+      audio.play().catch(() => {});
+      queue.push({ audio, track });
+    }
+
+    track.addEventListener('click', activate);
+    track.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
+
+  /* ── Botón STOP ── */
+  document.getElementById('btn-stop').addEventListener('click', () => {
+    [...queue].forEach(entry => stopEntry(entry));
+    queue.length = 0;
+  });
+
+  /* ── Visualizador simulado ──
+     Dibuja una forma de onda orgánica que se activa cuando hay audios
+     sonando, y se aplana suavemente cuando no hay ninguno.
+     No toca el pipeline de audio, por lo que funciona en file://
+  */
+  const canvas = document.getElementById('waveform');
+  const ctx    = canvas.getContext('2d');
+  const W = 100, H = 100;
+  let phase = 0;
+  let energy = 0; // 0 = silencio, 1 = activo
+
+  function drawWave() {
+    requestAnimationFrame(drawWave);
+
+    const playing = queue.length;
+    const targetEnergy = playing > 0 ? 1 : 0;
+    energy += (targetEnergy - energy) * 0.04; // transición suave
+
+    ctx.clearRect(0, 0, W, H);
+
+    if (energy < 0.005) return;
+
+    const layers = Math.min(playing || 1, 3);
+    phase += 0.04;
+
+    for (let l = 0; l < layers; l++) {
+      const amp    = (H * 0.28 * energy) / layers;
+      const freq   = 2 + l * 1.3;
+      const offset = l * 1.1;
+      const alpha  = 0.5 - l * 0.12;
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(180,180,172,${alpha * energy})`;
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= W; x++) {
+        const t = (x / W) * Math.PI * 2 * freq;
+        const noise = (Math.random() - 0.5) * 4 * energy;
+        const y = H / 2
+          + Math.sin(t + phase + offset) * amp
+          + Math.sin(t * 2.3 + phase * 0.7 + offset) * amp * 0.4
+          + noise;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  }
+
+  drawWave();
+})();
+</script>
+
+</body>
+</html>
