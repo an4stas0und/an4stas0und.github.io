@@ -90,8 +90,8 @@
     #btn-stop {
       position: fixed;
       bottom: 170px;
-      width: 120px;
-      height: 120px;
+      width: 90px;
+      height: 90px;
       background: #000;
       border: 1px solid #222;
       border-radius: 4px;
@@ -119,25 +119,26 @@
     #btn-stop svg rect { fill: #444; transition: fill 0.08s; }
     #btn-stop:hover svg rect { fill: #e8e8e0; }
  
-    /* ícono del botón picnolepsia: tres líneas verticales irregulares */
     #btn-picno svg line { stroke: #444; transition: stroke 0.08s; }
     #btn-picno:hover svg line { stroke: #e8e8e0; }
  
-    /* ── Responsive: móviles (todos los tamaños) ── */
+    /* ── Responsive: móviles ── */
     @media (max-width: 1024px) {
       #btn-picno,
       #btn-stop {
         bottom: 120px;
-        width: 120px;
-        height: 120px;
+        width: 90px;
+        height: 90px;
       }
-      #btn-picno { left: 150px; }
-      #btn-stop  { right: 150px; }
+      #btn-picno { left: 50px; }
+      #btn-stop  { right: 50px; }
     }
  
-    /* parpadeo del body durante la ausencia */
-    body.absence {
-      animation: blackout 1s steps(1, end);
+    /* ausencia picnoléptica: oculta todo menos el canvas */
+    body.absence #tracklist,
+    body.absence #btn-picno,
+    body.absence #btn-stop {
+      animation: blackout 1s steps(1, end) forwards;
     }
     @keyframes blackout {
       0%   { opacity: 1; }
@@ -228,7 +229,7 @@
  
 <!-- botón picnolepsia: tres líneas verticales como corte -->
 <button id="btn-picno" aria-label="Picnolepsia">
-  <svg width="60" height="60" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+  <svg width="36" height="36" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
     <line x1="2"  y1="1" x2="2"  y2="13" stroke-width="1.5"/>
     <line x1="7"  y1="3" x2="7"  y2="11" stroke-width="1.5"/>
     <line x1="12" y1="0" x2="12" y2="14" stroke-width="1.5"/>
@@ -237,7 +238,7 @@
  
 <!-- botón stop -->
 <button id="btn-stop" aria-label="Detener todo">
-  <svg width="60" height="60" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+  <svg width="36" height="36" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
     <rect x="0" y="0" width="14" height="14"/>
   </svg>
 </button>
