@@ -379,46 +379,56 @@
     [...queue].forEach(entry => stopEntry(entry));
     queue.length = 0;
  
-    /* 2. Congelar el último fotograma del visualizador */
+    /* 2. Reanudar contexto si estaba suspendido */
+    const ctxReady = audioCtx.state === 'suspended'
+      ? audioCtx.resume()
+      : Promise.resolve();
+ 
+    /* 3. Congelar el último fotograma del visualizador */
     if (window._picnoFreezeFrame) window._picnoFreezeFrame();
  
-    /* 3. Ausencia: pantalla en negro 1 segundo */
+    /* 4. Ausencia: pantalla en negro 1 segundo */
     document.body.classList.add('absence');
  
-    /* 3. Al cabo de 1 segundo: elegir 3 pistas aleatorias y reproducirlas
-          desde un punto aleatorio dentro de su duración */
-    setTimeout(() => {
+    /* 5. Al cabo de 1 segundo: elegir 3 pistas aleatorias desde punto aleatorio */
+    ctxReady.then(() => {
+      setTimeout(() => {
+        try {
+          document.body.classList.remove('absence');
+          if (window._picnoUnfreezeFrame) window._picnoUnfreezeFrame();
+ 
+          const shuffled = [...allTracks]
+            .map(t => ({ t, r: Math.random() }))
+            .sort((a, b) => a.r - b.r)
+            .map(x => x.t)
+            .slice(0, 3);
+ 
+          shuffled.forEach(track => {
+            const { audio } = audioMap.get(track);
+            const seekFraction = Math.random();
+ 
+            function doPlay() {
+              playTrack(track, seekFraction);
+            }
+ 
+            if (audio.duration) {
+              doPlay();
+            } else {
+              audio.addEventListener('loadedmetadata', doPlay, { once: true });
+              if (audio.readyState === 0) audio.load();
+            }
+          });
+        } finally {
+          /* siempre liberar el lock, pase lo que pase */
+          picnoLocked = false;
+        }
+      }, 1000);
+    }).catch(() => {
+      /* si el resume falla, limpiar igual */
       document.body.classList.remove('absence');
       if (window._picnoUnfreezeFrame) window._picnoUnfreezeFrame();
- 
-      /* mezclar índices y tomar los primeros 3 */
-      const shuffled = [...allTracks]
-        .map(t => ({ t, r: Math.random() }))
-        .sort((a, b) => a.r - b.r)
-        .map(x => x.t)
-        .slice(0, 3);
- 
-      shuffled.forEach(track => {
-        const { audio } = audioMap.get(track);
-        const seekFraction = Math.random(); // punto aleatorio 0–1
- 
-        /* si la duración ya se conoce, saltamos directo;
-           si no, esperamos el evento loadedmetadata */
-        function doPlay() {
-          playTrack(track, seekFraction);
-        }
- 
-        if (audio.duration) {
-          doPlay();
-        } else {
-          audio.addEventListener('loadedmetadata', doPlay, { once: true });
-          /* forzar carga si no había empezado */
-          if (audio.readyState === 0) audio.load();
-        }
-      });
- 
       picnoLocked = false;
-    }, 1000);
+    });
   });
  
   /* ── Visualizador de onda real como fondo ── */
