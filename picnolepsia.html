@@ -26,6 +26,7 @@
     #tracklist {
       position: relative;
       z-index: 1;
+      padding-top: 52px;
     }
  
     .track {
@@ -49,14 +50,14 @@
  
     .track-title {
       font-size: 13px;
-      color: #888;
+      color: #aaa;
       letter-spacing: 0.06em;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .track.playing .track-title { color: #e8e8e0; }
+    .track.playing .track-title { color: #F0F0EB; }
  
     .progress-bar {
       position: absolute;
@@ -116,11 +117,16 @@
     #btn-picno:active,
     #btn-stop:active { background: #1a1a1a; }
  
-    #btn-stop svg rect { fill: #444; transition: fill 0.08s; }
+    #btn-stop svg rect { fill: #777; transition: fill 0.08s; }
     #btn-stop:hover svg rect { fill: #e8e8e0; }
  
-    #btn-picno svg line { stroke: #444; transition: stroke 0.08s; }
+    #btn-picno svg line { stroke: #777; transition: stroke 0.08s; }
     #btn-picno:hover svg line { stroke: #e8e8e0; }
+ 
+    /* ── font-size mayor solo en escritorio ── */
+    @media (min-width: 1025px) {
+      .track-title { font-size: 14px; }
+    }
  
     /* ── Responsive: móviles ── */
     @media (max-width: 1024px) {
